@@ -84,7 +84,7 @@ Service Level Indicators (SLIs) are the actual metrics used to track and quantif
 As an example, an SLA might require 99.9% uptime. To support this, the SLO could be set at 99.95% uptime, and the SLI would be the actual measured uptime over a given period. This structure helps organizations monitor, manage, and improve their service delivery.
 
 ## Common Performance Metrics
-- **Throughput:** The number of transactions or requests processed per second, indicating system capacity.
+- **Throughput:** The number of transactions or requests processed in a given unit of time (seconds, minutes, etc.), indicating system capacity.
 - **Response Time:** The time taken to process a request from start to finish.
 - **Apdex Score:** A user satisfaction metric based on response time thresholds, ranging from 0 (no users satisfied) to 1 (all users satisfied).
 	- score calculation
