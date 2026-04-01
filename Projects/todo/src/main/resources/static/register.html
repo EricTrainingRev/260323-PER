@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Register</title>
+    <style>
+        body {
+            background: #0a2342;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .register-container {
+            background: #ff9900;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            padding: 2.5rem 2rem 2rem 2rem;
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .register-title {
+            color: #fff;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .register-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .register-form label {
+            color: #fff;
+            font-weight: 500;
+        }
+        .register-form input[type="text"],
+        .register-form input[type="password"] {
+            padding: 0.5rem;
+            border: 1px solid #0a2342;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .register-form button {
+            background: #0a2342;
+            color: #ffd580;
+            border: none;
+            border-radius: 5px;
+            padding: 0.7rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .register-form button:hover {
+            background: #fff;
+            color: #ff9900;
+        }
+        .login-link {
+            margin-top: 1.5rem;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .login-link a {
+            color: #0a2342;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-title">Register</div>
+        <form class="register-form" id="registerForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Register</button>
+        </form>
+        <div id="message" style="margin-top:1rem; font-size:1rem;"></div>
+        <div class="login-link">
+            Already have an account? <a href="/index.html">Login here</a>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('registerForm');
+        const messageDiv = document.getElementById('message');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            messageDiv.textContent = '';
+            const username = form.username.value.trim();
+            const password = form.password.value;
+            if (!username || !password) {
+                messageDiv.style.color = '#fff';
+                messageDiv.textContent = 'Please fill in all fields.';
+                return;
+            }
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                if (res.status === 201) {
+                    messageDiv.style.color = '#fff';
+                    messageDiv.innerHTML = 'Registration successful! <a href="/index.html" style="color:#0a2342;font-weight:bold;">Click here to login</a>.';
+                    form.reset();
+                } else {
+                    const errorMsg = await res.text();
+                    messageDiv.style.color = '#fff';
+                    messageDiv.textContent = errorMsg || 'Registration failed. Please try again.';
+                }
+            } catch (err) {
+                messageDiv.style.color = '#fff';
+                messageDiv.textContent = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>

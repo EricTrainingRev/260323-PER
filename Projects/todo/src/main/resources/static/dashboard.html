@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Dashboard</title>
+    <style>
+                #todoForm {
+                    display: flex;
+                    gap: 0.5rem;
+                    align-items: flex-end;
+                    margin-bottom: 1rem;
+                }
+                #todoForm > div {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                }
+                #todoForm button[type="submit"] {
+                    background: #ff9900;
+                    color: #fff;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 0.25rem 1rem;
+                    font-size: 1rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                    height: auto;
+                    line-height: normal;
+                }
+                #todoForm button[type="submit"]:hover {
+                    background: #ffd580;
+                    color: #0a2342;
+                }
+        body {
+            background: #0a2342;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dashboard-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 2.5rem 2rem 2rem 2rem;
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .greeting-header {
+            width: 100%;
+            background: #ff9900;
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+            padding: 1.2rem 1rem 1rem 1rem;
+            font-size: 1.7rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        #logoutBtn {
+            background: #0a2342;
+            color: #ffd580;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        #logoutBtn:hover {
+            background: #ffd580;
+            color: #0a2342;
+        }
+        .todo-section {
+            width: 100%;
+            background: #fff7e6;
+            border-radius: 0 0 10px 10px;
+            min-height: 200px;
+            padding: 1.5rem 1rem;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="greeting-header">
+            <span id="greeting">Hello!</span>
+            <button id="logoutBtn">Logout</button>
+        </div>
+        <div class="todo-section">
+            <form id="todoForm" class="todo-form">
+                <div class="todo-form-group">
+                    <label for="todoTitle" class="todo-label">New Todo</label>
+                    <input type="text" id="todoTitle" name="todoTitle" placeholder="Enter todo title" required class="todo-input">
+                </div>
+                <button type="submit" class="todo-add-btn">Add</button>
+            </form>
+            <div id="todoErrorMsg" style="color: red; margin-top: 0.5rem; font-size: 0.95rem;"></div>
+            <div id="todoList">
+                <!-- Todo items will go here -->
+            </div>
+        </div>
+    </div>
+    <script>
+        // Personalized greeting
+        const username = localStorage.getItem('username');
+        document.getElementById('greeting').textContent = username ? `Hello, ${username}!` : 'Hello!';
+
+        // Logout button
+        document.getElementById('logoutBtn').onclick = function() {
+            fetch('/logout', {
+                method: 'POST',
+                credentials: 'include'
+            }).then(() => {
+                window.location.href = '/index.html';
+            });
+        };
+
+
+        const todoForm = document.getElementById('todoForm');
+        const errorMsg = document.getElementById('todoErrorMsg');
+
+        // Handle create todo form submission
+        todoForm.onsubmit = async function(e) {
+            e.preventDefault();
+            errorMsg.textContent = '';
+            const titleInput = document.getElementById('todoTitle');
+            const task = titleInput.value.trim();
+            if (!task) {
+                errorMsg.textContent = 'Todo title cannot be empty.';
+                return;
+            }
+            // Get username from localStorage
+            const username = localStorage.getItem('username');
+            if (!username) {
+                errorMsg.textContent = 'User not found. Please log in again.';
+                return;
+            }
+            // Build todo object with user info (username)
+            const todo = {
+                task: task,
+                user: { username: username }
+            };
+            try {
+                const response = await fetch('/todo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(todo)
+                });
+                if (response.ok) {
+                    titleInput.value = '';
+                    updateTodoView();
+                } else {
+                    const err = await response.text();
+                    if (err && err.includes('Unauthorized')) {
+                        window.location.href = '/index.html';
+                        return;
+                    }
+                    errorMsg.textContent = err || 'Failed to create todo.';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Network error. Please try again.';
+            }
+        };
+
+        // Extracts a todo item from a todo div (expects div structure from updateTodoView)
+        function extractTodoFromDiv(div) {
+            // Assumes the div has a checkbox and a span for the task
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            const span = div.querySelector('span');
+            // The todo id and other data should be stored as data attributes
+            const id = div.dataset.todoId;
+            const task = span ? span.textContent : '';
+            const completed = checkbox ? checkbox.checked : false;
+            const username = localStorage.getItem('username');
+            // Try to find the original todo object from the last loaded todos
+            let subtasks = [];
+            if (window._lastTodos && Array.isArray(window._lastTodos)) {
+                const orig = window._lastTodos.find(t => t.id == id);
+                if (orig && Array.isArray(orig.subtasks)) {
+                    subtasks = orig.subtasks;
+                }
+            }
+            return {
+                id: id ? Number(id) : undefined,
+                task: task,
+                completed: completed,
+                user: { username: username },
+                subtasks: subtasks
+            };
+        }
+        // Fetch and display all todos for the user
+        async function updateTodoView() {
+            const todoListDiv = document.getElementById('todoList');
+            todoListDiv.innerHTML = 'Loading...';
+            const username = localStorage.getItem('username');
+            if (!username) {
+                todoListDiv.innerHTML = '<span style="color:red">User not found. Please log in again.</span>';
+                return;
+            }
+            try {
+                const response = await fetch('/todo', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    const err = await response.text();
+                    if (err && err.includes('Unauthorized')) {
+                        window.location.href = '/index.html';
+                        return;
+                    }
+                    todoListDiv.innerHTML = '<span style="color:red">Failed to load todos.</span>';
+                    return;
+                }
+                const todos = await response.json();
+                window._lastTodos = todos; // Save for later reference
+                // Filter todos for the current user
+                const userTodos = todos.filter(todo => todo.username === username);
+                if (userTodos.length === 0) {
+                    todoListDiv.innerHTML = '<em>No todos found.</em>';
+                    return;
+                }
+                todoListDiv.innerHTML = '';
+                userTodos.forEach(todo => {
+                    const div = document.createElement('div');
+                    div.style.margin = '0.3em 0';
+                    div.dataset.todoId = todo.id;
+
+                    // Main content wrapper (flex)
+                    const contentDiv = document.createElement('div');
+                    contentDiv.style.display = 'flex';
+                    contentDiv.style.alignItems = 'center';
+
+                    // Left content (checkbox + title)
+                    const leftWrapper = document.createElement('div');
+                    leftWrapper.style.display = 'flex';
+                    leftWrapper.style.alignItems = 'center';
+                    leftWrapper.style.flex = '1';
+                    // Checkbox
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = !!todo.completed;
+                    checkbox.style.marginRight = '0.5em';
+                    checkbox.addEventListener('change', async function() {
+                        const updatedTodo = extractTodoFromDiv(div);
+                        await updateTodoItem(updatedTodo);
+                        updateTodoView();
+                    });
+                    leftWrapper.appendChild(checkbox);
+                    // Add the task text
+                    const span = document.createElement('span');
+                    span.textContent = todo.task;
+                    span.style.cursor = 'pointer';
+                    span.addEventListener('click', function handleEditClick() {
+                        leftWrapper.innerHTML = '';
+                        subtaskBtn.style.display = 'none';
+                        // Checkbox (preserve checked state)
+                        const editCheckbox = document.createElement('input');
+                        editCheckbox.type = 'checkbox';
+                        editCheckbox.checked = !!todo.completed;
+                        editCheckbox.style.marginRight = '0.5em';
+                        editCheckbox.disabled = true;
+                        leftWrapper.appendChild(editCheckbox);
+                        // Input for editing title
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = todo.task;
+                        input.style.flex = '1';
+                        input.style.marginRight = '0.5em';
+                        leftWrapper.appendChild(input);
+                        // Save button
+                        const saveBtn = document.createElement('button');
+                        saveBtn.textContent = 'Save';
+                        saveBtn.style.background = '#ff9900';
+                        saveBtn.style.color = '#fff';
+                        saveBtn.style.border = 'none';
+                        saveBtn.style.borderRadius = '5px';
+                        saveBtn.style.padding = '0.25rem 1rem';
+                        saveBtn.style.fontSize = '1rem';
+                        saveBtn.style.fontWeight = 'bold';
+                        saveBtn.style.cursor = 'pointer';
+                        saveBtn.style.marginRight = '0.5em';
+                        saveBtn.addEventListener('click', async function(e) {
+                            e.preventDefault();
+                            const updatedTodo = {
+                                id: todo.id,
+                                task: input.value.trim(),
+                                completed: editCheckbox.checked,
+                                user: { username: todo.username || localStorage.getItem('username') }
+                            };
+                            await updateTodoItem(updatedTodo);
+                            updateTodoView();
+                        });
+                        leftWrapper.appendChild(saveBtn);
+                        // Cancel button
+                        const cancelBtn = document.createElement('button');
+                        cancelBtn.textContent = 'Cancel';
+                        cancelBtn.style.background = '#0a2342';
+                        cancelBtn.style.color = '#ffd580';
+                        cancelBtn.style.border = 'none';
+                        cancelBtn.style.borderRadius = '5px';
+                        cancelBtn.style.padding = '0.25rem 1rem';
+                        cancelBtn.style.fontSize = '1rem';
+                        cancelBtn.style.fontWeight = 'bold';
+                        cancelBtn.style.cursor = 'pointer';
+                        cancelBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            updateTodoView();
+                        });
+                        leftWrapper.appendChild(cancelBtn);
+                    });
+                    leftWrapper.appendChild(span);
+                    contentDiv.appendChild(leftWrapper);
+                    // Subtask+ button
+                    const subtaskBtn = document.createElement('button');
+                    subtaskBtn.textContent = 'subtask+';
+                    subtaskBtn.style.background = '#ff9900';
+                    subtaskBtn.style.color = '#fff';
+                    subtaskBtn.style.border = 'none';
+                    subtaskBtn.style.borderRadius = '5px';
+                    subtaskBtn.style.padding = '0.15rem 0.5rem';
+                    subtaskBtn.style.minWidth = 'auto';
+                    subtaskBtn.style.fontSize = '0.9rem';
+                    subtaskBtn.style.fontWeight = 'bold';
+                    subtaskBtn.style.cursor = 'pointer';
+                    subtaskBtn.style.marginLeft = '0.5em';
+                    // Render existing subtasks if any
+                    let subtaskList = null;
+                    if (Array.isArray(todo.subtasks) && todo.subtasks.length > 0) {
+                        subtaskList = document.createElement('ul');
+                        subtaskList.className = 'subtask-list';
+                        subtaskList.style.listStyle = 'disc inside';
+                        subtaskList.style.margin = '0.5em 0 0 2em';
+                        subtaskList.style.padding = '0';
+                        subtaskList.style.display = 'block';
+                        subtaskList.style.width = '100%';
+                        todo.subtasks.forEach((subtask, subtaskIdx) => {
+                            const li = document.createElement('li');
+                            li.style.margin = '0.2em 0';
+                            li.style.display = 'flex';
+                            li.style.alignItems = 'center';
+                            // Checkbox for subtask completion
+                            const subtaskCheckbox = document.createElement('input');
+                            subtaskCheckbox.type = 'checkbox';
+                            subtaskCheckbox.checked = !!subtask.completed;
+                            subtaskCheckbox.style.marginRight = '0.5em';
+                            // Make subtask checkbox interactive
+                            subtaskCheckbox.addEventListener('change', async function() {
+                                // Clone the todo and subtasks, ensuring each subtask has a 'todo' property with the parent todo's id
+                                const updatedTodo = {
+                                    ...todo,
+                                    subtasks: todo.subtasks.map((st, idx) => {
+                                        const updated = idx === subtaskIdx ? { ...st, completed: subtaskCheckbox.checked } : { ...st };
+                                        return {
+                                            ...updated,
+                                            todo: { id: todo.id }
+                                        };
+                                    }),
+                                    user: { username: todo.username || localStorage.getItem('username') }
+                                };
+                                await updateTodoItem(updatedTodo);
+                                updateTodoView();
+                            });
+                            li.appendChild(subtaskCheckbox);
+                            // Subtask text
+                            const subtaskSpan = document.createElement('span');
+                            subtaskSpan.textContent = subtask.task;
+                            li.appendChild(subtaskSpan);
+                            subtaskList.appendChild(li);
+                        });
+                    }
+
+                    // Subtask+ click handler
+                    subtaskBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Find or create a UL for subtasks after the contentDiv
+                        let subtaskListLocal = div.querySelector('ul.subtask-list');
+                        if (!subtaskListLocal) {
+                            subtaskListLocal = document.createElement('ul');
+                            subtaskListLocal.className = 'subtask-list';
+                            subtaskListLocal.style.listStyle = 'disc inside';
+                            subtaskListLocal.style.margin = '0.5em 0 0 2em';
+                            subtaskListLocal.style.padding = '0';
+                            subtaskListLocal.style.display = 'block';
+                            subtaskListLocal.style.width = '100%';
+                            div.appendChild(subtaskListLocal);
+                        }
+                        // Create LI for new subtask input
+                        const li = document.createElement('li');
+                        li.style.margin = '0.2em 0';
+                        // Input for subtask text
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.placeholder = 'Enter subtask...';
+                        input.style.marginRight = '0.5em';
+                        li.appendChild(input);
+                        // Save button
+                        const saveBtn = document.createElement('button');
+                        saveBtn.textContent = 'Save';
+                        saveBtn.style.background = '#ff9900';
+                        saveBtn.style.color = '#fff';
+                        saveBtn.style.border = 'none';
+                        saveBtn.style.borderRadius = '5px';
+                        saveBtn.style.padding = '0.15rem 0.7rem';
+                        saveBtn.style.fontSize = '0.95rem';
+                        saveBtn.style.fontWeight = 'bold';
+                        saveBtn.style.cursor = 'pointer';
+                        saveBtn.style.marginRight = '0.5em';
+                        // Cancel button
+                        const cancelBtn = document.createElement('button');
+                        cancelBtn.textContent = 'Cancel';
+                        cancelBtn.style.background = '#0a2342';
+                        cancelBtn.style.color = '#ffd580';
+                        cancelBtn.style.border = 'none';
+                        cancelBtn.style.borderRadius = '5px';
+                        cancelBtn.style.padding = '0.15rem 0.7rem';
+                        cancelBtn.style.fontSize = '0.95rem';
+                        cancelBtn.style.fontWeight = 'bold';
+                        cancelBtn.style.cursor = 'pointer';
+                        // Save handler
+                        saveBtn.addEventListener('click', async function(ev) {
+                            ev.preventDefault();
+                            const subtaskText = input.value.trim();
+                            if (!subtaskText) return;
+                            // Get current subtasks from todo (if any), ensure all have correct todo reference
+                            let subtasks = Array.isArray(todo.subtasks) ? todo.subtasks.map(st => ({
+                                ...st,
+                                todo: st.todo && st.todo.id ? st.todo : { id: todo.id }
+                            })) : [];
+                            // Add new subtask (id left undefined for backend to assign)
+                            subtasks.push({ task: subtaskText, completed: false, todo: { id: todo.id } });
+                            // Build updated todo
+                            const updatedTodo = {
+                                ...todo,
+                                subtasks: subtasks,
+                                user: { username: todo.username || localStorage.getItem('username') }
+                            };
+                            await updateTodoItem(updatedTodo);
+                            updateTodoView();
+                        });
+                        // Cancel handler
+                        cancelBtn.addEventListener('click', function(ev) {
+                            ev.preventDefault();
+                            li.remove();
+                            // If no more subtasks, remove the list
+                            if (subtaskListLocal.children.length === 0) {
+                                subtaskListLocal.remove();
+                            }
+                        });
+                        li.appendChild(saveBtn);
+                        li.appendChild(cancelBtn);
+                        subtaskListLocal.appendChild(li);
+                        input.focus();
+                    });
+                    contentDiv.appendChild(subtaskBtn);
+                    div.appendChild(contentDiv);
+                    if (subtaskList) {
+                        div.appendChild(subtaskList);
+                    }
+                    todoListDiv.appendChild(div);
+                });
+            } catch (err) {
+                if (err && err.message && err.message.includes('Unauthorized')) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+                todoListDiv.innerHTML = '<span style="color:red">Network error. Please try again.</span>';
+            }
+        }
+
+        async function updateTodoItem(todo) {
+            errorMsg.textContent = '';
+            // Ensure all subtasks have a todo property with the parent todo's id
+            let updatedTodo = { ...todo };
+            if (Array.isArray(updatedTodo.subtasks)) {
+                updatedTodo.subtasks = updatedTodo.subtasks.map(st => ({
+                    ...st,
+                    todo: { id: updatedTodo.id }
+                }));
+            }
+            try {
+                const response = await fetch('/todo', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(updatedTodo)
+                });
+                if (!response.ok) {
+                    const err = await response.text();
+                    if (err && err.includes('Unauthorized')) {
+                        window.location.href = '/index.html';
+                        return;
+                    }
+                    errorMsg.textContent = err || 'Failed to update todo.';
+                }
+            } catch (err) {
+                if (err && err.message && err.message.includes('Unauthorized')) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+                errorMsg.textContent = 'Network error. Please try again.';
+            }
+        }
+
+        
+
+        // Initial load
+        updateTodoView();
+    </script>
+</body>
+</html>
