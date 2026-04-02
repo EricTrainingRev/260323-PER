@@ -59,13 +59,25 @@ GROUP BY
 ORDER BY
     CustomersAssisted ASC;
 
-
-
-
-
-
-
-
+-- SUBQUERY EXAMPLE
+EXPLAIN QUERY PLAN
+SELECT
+    e.EmployeeId,
+    e.FirstName,
+    e.LastName,
+    (
+        SELECT COUNT(*)
+        FROM Customer c
+        WHERE c.SupportRepId = e.EmployeeId
+    ) AS CustomersAssisted
+FROM Employee e
+WHERE
+    (
+        SELECT COUNT(*)
+        FROM Customer c
+        WHERE c.SupportRepId = e.EmployeeId
+    ) > 0
+ORDER BY CustomersAssisted ASC;
 
 
 
