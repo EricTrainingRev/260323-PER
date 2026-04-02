@@ -100,3 +100,82 @@ During a stress test, a server with a fixed thread pool size of 50 becomes satur
 
 **Example Scenario:**
 During a load test, heap usage steadily increases and frequent full GCs occur, causing response times to spike. Analysis reveals a memory leak in session management code, leading to objects being retained longer than necessary. After fixing the leak and tuning the heap size, GC pauses are reduced and application throughput improves.
+
+
+## SQL Performance Fundamentals
+
+Understanding SQL performance fundamentals is crucial for diagnosing database bottlenecks and optimizing query efficiency during load testing. Well-designed queries and proper indexing can significantly improve application responsiveness and throughput.
+
+### Query Execution Lifecycle
+
+- **Parsing:** The database parses the SQL statement, checks syntax, and validates object references.
+- **Optimization:** The query optimizer determines the most efficient execution plan based on available indexes, statistics, and schema structure.
+- **Execution:** The database engine executes the plan, retrieving and processing data as needed.
+- **Result Return:** The results are sent back to the application or client.
+	- **Example:** A SELECT query is parsed, optimized to use an index, executed, and the result set is returned to the user.
+
+#### Query Parsing Order Of Operations
+```sql
+FROM
+WHERE
+GROUP BY
+HAVING
+SELECT
+WINDOW FUNCTION
+ORDER BY
+OFFSET / FETCH / LIMIT
+```
+
+### Full Table Scan vs Index Scan
+
+- **Full Table Scan:** The database reads every row in the table to find matching records. This is resource-intensive and slow for large tables, often causing high disk I/O and increased response times.
+- **Index**: An index is a data structure used by databases to quickly locate and access rows in a table based on the values of one or more columns. Indexes work like a book’s table of contents, allowing the database to find data efficiently without scanning every row. Properly designed indexes greatly improve query performance, especially for large tables.
+- **Index Scan:** The database uses an index to quickly locate matching rows, reducing the number of reads and improving performance. Proper indexing is key to avoiding unnecessary full table scans.
+	- **Example:** Searching for a user by email in a table with an email index results in a fast index scan. Without the index, the database performs a full table scan, slowing down the query.
+
+### Joins vs Subqueries Performance
+
+- **Joins:** Combine rows from two or more tables based on related columns. Joins are generally more efficient than subqueries, especially when proper indexes are present. However, complex joins can increase CPU and memory usage.
+- **Subqueries:** Nested queries used to filter or aggregate data. Subqueries can be less efficient, especially if executed repeatedly or if they return large result sets.
+	- **Example:** An INNER JOIN between orders and customers retrieves matching records efficiently. A correlated subquery for each order may result in many repeated queries and slower performance.
+
+Poorly optimized subquery (runs the subquery for every row in the outer table, causing repeated work and slow performance):
+```sql
+SELECT o.id, o.amount
+FROM orders o
+WHERE o.customer_id IN (
+  SELECT c.id
+  FROM customers c
+  WHERE c.status = 'active'
+);
+```
+
+Optimized join (retrieves matching rows in a single pass, leveraging indexes and reducing redundant work):
+```sql
+SELECT o.id, o.amount
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.id
+WHERE c.status = 'active';
+```
+
+### Understanding Query Execution Plans
+
+- **Execution Plan:** A detailed map of how the database will execute a query, including join methods, index usage, and row access strategies. Reviewing execution plans helps identify inefficiencies, such as missing indexes or unnecessary full table scans.
+	- **Example:** An execution plan shows a sequential scan on a large table, indicating a missing index. Adding the index changes the plan to an index scan, improving performance.
+
+### Identifying Slow Queries in Logs
+
+- **Slow Query Logs:** Databases often provide logs of queries that exceed a specified execution time threshold. Analyzing these logs helps pinpoint problematic queries and areas for optimization. The mechanism for this will differ between database management systems.
+- **Common Causes:** Slow queries are often caused by missing indexes, inefficient joins, large result sets, or poor query structure.
+	- **Example:** During a load test, the slow query log reveals several SELECT statements taking multiple seconds due to full table scans. Adding indexes and rewriting queries reduces execution times.
+
+### Practical Tips
+
+- Use indexes to optimize query performance and avoid full table scans.
+- Review query execution plans regularly to identify bottlenecks and inefficiencies.
+- Monitor slow query logs to detect and address problematic SQL statements.
+- Optimize joins and subqueries for efficiency, especially in high-load scenarios.
+- Limit result set sizes and avoid unnecessary data retrieval.
+
+**Example Scenario:**
+During a performance test, response times spike when a report query runs. Analysis of the execution plan shows a full table scan on a large transactions table. Adding an index on the relevant column and rewriting the query to use a JOIN reduces execution time from 10 seconds to under 1 second, improving overall system throughput.
