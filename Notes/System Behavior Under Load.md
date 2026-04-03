@@ -179,3 +179,66 @@ WHERE c.status = 'active';
 
 **Example Scenario:**
 During a performance test, response times spike when a report query runs. Analysis of the execution plan shows a full table scan on a large transactions table. Adding an index on the relevant column and rewriting the query to use a JOIN reduces execution time from 10 seconds to under 1 second, improving overall system throughput.
+
+## Bottleneck Analysis
+
+Effective bottleneck analysis is key to understanding where performance issues originate and how to address them. Bottlenecks can occur at any layer of the system, and identifying their root cause is essential for improving throughput and response times.
+
+### CPU-bound vs DB-bound
+
+- **CPU-bound:** Performance is limited by CPU resources. High CPU utilization, frequent context switching, or thread contention can indicate a CPU-bound bottleneck. Optimizing code, reducing thread counts, or scaling hardware may help.
+- **DB-bound:** Performance is limited by database operations. Slow queries, high disk I/O, or lock contention in the database can cause DB-bound bottlenecks. Query optimization, indexing, or database scaling are typical remedies.
+	- **Example:** During a load test, CPU utilization is consistently high and response times increase, indicating a CPU-bound bottleneck. In another scenario, slow database queries cause high response times while CPU usage remains low, pointing to a DB-bound issue.
+
+### Response Time Breakdown
+
+- **Component Analysis:** Breaking down response time into individual components (e.g., application processing, database access, network latency) helps pinpoint where delays occur.
+- **Tools:** Profilers, APMs, and log analysis can provide detailed breakdowns.
+	- **Example:** A web request spends 80% of its time waiting for a database response, suggesting the database is the primary bottleneck.
+
+### Identifying Slow Queries Conceptually
+
+- **Symptoms:** High response times, increased wait times, and slow log entries often indicate slow queries.
+- **Approach:** Review slow query logs, execution plans, and monitor query latency to identify problematic SQL statements.
+	- **Example:** A report generation feature triggers several slow queries, causing user-facing delays. Optimizing these queries improves performance.
+
+### Interpreting High Response Time with Low CPU
+
+- **Low CPU, High Latency:** If response times are high but CPU utilization is low, the bottleneck is likely elsewhere—such as the database, disk, network, or external dependencies.
+- **Investigation:** Check database, disk, and network metrics to locate the source of delay.
+	- **Example:** An application experiences slow responses during peak hours, but CPU usage is low. Analysis reveals network saturation and slow database queries as the root cause.
+
+### Mapping Bottlenecks to Architectural Layer
+
+- **Layered Analysis:** Map observed bottlenecks to specific architectural layers (e.g., web server, application logic, database, external APIs) to target remediation efforts.
+- **Correlation:** Use monitoring tools to correlate symptoms with resource metrics at each layer.
+	- **Example:** High latency in API responses is traced to slow third-party service calls, not internal processing.
+
+### Integration with External Systems (COTS)
+
+- **COTS (Commercial Off-The-Shelf):** Integration with external systems can introduce unpredictable latency and bottlenecks. Monitor response times and error rates for external calls.
+- **Mitigation:** Use caching, retries, and timeout strategies to minimize impact.
+	- **Example:** A payment processing system relies on a COTS API. During a load test, slow responses from the API cause delays in transaction processing.
+
+### Impact of Third-party APIs on Response Time
+
+- **External Dependencies:** Third-party APIs can become bottlenecks if they are slow, unreliable, or rate-limited. Monitor their performance and design for resilience.
+- **Fallbacks:** Implement fallback mechanisms to handle failures gracefully.
+	- **Example:** An application’s login feature depends on a third-party authentication API. When the API is slow, login response times increase sharply.
+
+### Handling Latency from External Dependencies
+
+- **Strategies:** Use asynchronous processing, circuit breakers, and timeouts to manage latency from external dependencies. Avoid blocking critical application threads.
+- **Monitoring:** Track external call latency and error rates to detect issues early.
+	- **Example:** A microservice architecture uses circuit breakers to prevent cascading failures when an external API becomes unresponsive.
+
+### Practical Tips
+
+- Break down response times to identify the slowest component.
+- Correlate resource metrics (CPU, DB, disk, network) with observed symptoms.
+- Optimize queries, code, and external calls based on bottleneck location.
+- Use monitoring and profiling tools to track bottlenecks over time.
+- Design for resilience when integrating with external systems.
+
+**Example Scenario:**
+During a performance test, response times spike for a checkout process. Analysis shows low CPU usage but high latency in calls to a third-party payment API. Implementing retries and timeouts, and adding local caching for non-critical data, reduces the impact of external delays and improves overall system responsiveness.

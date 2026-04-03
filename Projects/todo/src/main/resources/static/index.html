@@ -94,45 +94,9 @@
             Don't have an account? <a href="/register.html">Register here</a>
         </div>
     </div>
-        <script>
-        // Store username in localStorage upon successful login
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('loginForm');
-            const messageDiv = document.getElementById('message');
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                messageDiv.textContent = '';
-                const username = loginForm.username.value.trim();
-                const password = loginForm.password.value;
-                if (!username || !password) {
-                    messageDiv.style.color = '#0a2342';
-                    messageDiv.textContent = 'Please fill in all fields.';
-                    return;
-                }
-                try {
-                    const res = await fetch('/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ username, password })
-                    });
-                    if (res.ok) {
-                        localStorage.setItem('username', username);
-                        window.location.href = '/dashboard.html';
-                    } else {
-                        const errorMsg = await res.text();
-                        messageDiv.style.color = '#0a2342';
-                        messageDiv.textContent = errorMsg || 'Login failed. Please try again.';
-                    }
-                } catch (err) {
-                    messageDiv.style.color = '#0a2342';
-                    messageDiv.textContent = 'An error occurred. Please try again.';
-                }
-            });
-        });
-        </script>
     <script>
+    // Store username in localStorage upon successful login
+    document.addEventListener('DOMContentLoaded', function() {
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
         loginForm.addEventListener('submit', async function(e) {
@@ -153,7 +117,8 @@
                     },
                     body: JSON.stringify({ username, password })
                 });
-                if (res.status === 204) {
+                if (res.ok) {
+                    localStorage.setItem('username', username);
                     window.location.href = '/dashboard.html';
                 } else {
                     const errorMsg = await res.text();
@@ -165,6 +130,7 @@
                 messageDiv.textContent = 'An error occurred. Please try again.';
             }
         });
+    });
     </script>
 </body>
 </html>
