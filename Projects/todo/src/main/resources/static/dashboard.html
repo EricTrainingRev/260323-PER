@@ -299,7 +299,8 @@
                                 id: todo.id,
                                 task: input.value.trim(),
                                 completed: editCheckbox.checked,
-                                user: { username: todo.username || localStorage.getItem('username') }
+                                user: { username: todo.username || localStorage.getItem('username') },
+                                subtasks: todo.subtasks || []
                             };
                             await updateTodoItem(updatedTodo);
                             updateTodoView();
