@@ -1,0 +1,7 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1775654505386,7,Registration-/,200,,Registration Thread Group 1-1,text,true,,4910,448,1,1,http://localhost:8080/,7,0,2
+1775654505394,7,Registration-/register.html,200,,Registration Thread Group 1-1,text,true,,4885,501,1,1,http://localhost:8080/register.html,6,0,0
+1775654505401,19,Registration-/register,201,,Registration Thread Group 1-1,text,true,,195,514,1,1,http://localhost:8080/register,19,0,0
+1775654657095,9,Registration-/,200,,Registration Thread Group 1-1,text,true,,4910,448,1,1,http://localhost:8080/,9,0,2
+1775654657105,6,Registration-/register.html,200,,Registration Thread Group 1-1,text,true,,4885,501,1,1,http://localhost:8080/register.html,6,0,0
+1775654657112,21,Registration-/register,201,,Registration Thread Group 1-1,text,true,,195,514,1,1,http://localhost:8080/register,21,0,0
