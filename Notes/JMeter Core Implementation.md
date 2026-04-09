@@ -478,3 +478,128 @@ Test Plan
 
 **Example:**
 After a test run, you review the Aggregate Report to see average response times and error rates for each sampler. You notice a spike in errors for the Purchase request. Using the View Results Tree, you examine individual failed samples, discovering that a specific error message appears during peak load. This allows you to target and resolve the underlying issue, improving overall system performance.
+
+## Parameterization
+
+
+### CSV Data Driven Testing
+
+#### Overview
+CSV Data Driven Testing in JMeter enables you to run tests with dynamic input data, simulating real-world scenarios where each user or iteration uses unique values. This is achieved using the CSV Data Set Config element, which reads data from external CSV files and assigns values to variables for use in your test plan.
+
+#### Key Concepts
+- **CSV Data Set Config:** A configuration element that reads data from a CSV file and makes it available as variables during test execution.
+- **Parameterization:** Allows each virtual user or iteration to use different data, such as usernames, passwords, or product IDs.
+- **Variable Assignment:** Each column in the CSV file is mapped to a variable name, which can be referenced in samplers and controllers.
+- **Data Scope:** Data can be shared across threads or kept unique per thread, depending on configuration.
+
+#### Typical Workflow
+1. **Prepare CSV File:** Create a CSV file with the required test data, using commas or another delimiter to separate values.
+2. **Add CSV Data Set Config:** Insert a CSV Data Set Config element into your Test Plan or Thread Group.
+3. **Configure File Path and Variables:** Specify the file path, delimiter, and variable names corresponding to the CSV columns.
+4. **Reference Variables:** Use the defined variables (e.g., ${username}, ${password}) in your samplers, controllers, or assertions.
+5. **Run the Test:** Each thread or iteration will use a new row from the CSV file, enabling data-driven testing.
+
+#### Best Practices
+- **Unique Data Per User:** Ensure the CSV file contains enough unique rows for the number of users or iterations to avoid data collisions.
+- **Consistent Formatting:** Keep the CSV file well-formatted, with no extra spaces or missing values.
+- **Parameterize All Inputs:** Use variables from the CSV file wherever dynamic data is needed.
+- **Handle End-of-File:** Configure the CSV Data Set Config to recycle, stop, or share data as appropriate for your scenario.
+- **Secure Sensitive Data:** Avoid storing sensitive information in plain text CSV files when possible.
+
+#### Example Structure
+```
+Test Plan
+├── Thread Group
+│   ├── CSV Data Set Config (user credentials)
+│   ├── HTTP Request (Login using ${username}, ${password})
+│   └── Listener (View Results Tree)
+```
+
+**Example:**
+You create a CSV file named `users.csv` with columns for username and password. In your test plan, you add a CSV Data Set Config pointing to this file and define variables `username` and `password`. Each virtual user logs in using credentials from a different row in the CSV file, enabling realistic and scalable data-driven testing.
+
+
+### Data Reuse VS One-Time Usage
+
+#### Overview
+Managing how test data is used in JMeter is crucial for realistic and reliable performance testing. Deciding whether to reuse data across multiple users or ensure each data row is used only once depends on your test objectives and the nature of the system under test.
+
+#### Key Concepts
+- **Data Reuse:** The same data row from a CSV file can be used by multiple threads or iterations. This is suitable for scenarios where unique data is not required for each user.
+- **One-Time Usage:** Each data row is used only once, ensuring every virtual user or iteration receives unique input. This approach is essential for tests that require distinct user accounts, order numbers, or other unique identifiers.
+- **CSV Data Set Config Options:** The "Recycle on EOF" and "Stop thread on EOF" settings control whether data is reused or consumed only once.
+
+#### When to Reuse Data
+- **Limited Data Availability:** When the dataset is small or it is acceptable for users to share the same data.
+- **Testing General Behavior:** For load or stress tests where unique data is not critical to the scenario.
+- **Stateless Operations:** When the system under test does not require unique input for each user (e.g., browsing a public page).
+
+#### When to Use Data Only Once
+- **Unique User Simulation:** When simulating actions that require unique credentials or identifiers (e.g., registration, unique logins, order placement).
+- **Avoiding Data Collisions:** To prevent conflicts such as duplicate entries, session clashes, or data integrity issues.
+- **Realistic Workflows:** When each virtual user must represent a distinct entity in the system.
+
+#### Best Practices
+- **Match Test Goals:** Choose data reuse or one-time usage based on what you are trying to validate (e.g., concurrency vs. uniqueness).
+- **Configure CSV Data Set Appropriately:** Set "Recycle on EOF" to false and "Stop thread on EOF" to true for one-time usage.
+- **Monitor Data Consumption:** Ensure your CSV file contains enough rows for the number of users or iterations if using one-time usage.
+- **Document Data Strategy:** Clearly comment on your data usage approach in the test plan for maintainability.
+
+#### Example Scenarios
+- **Reuse:** 100 users logging in with any of 10 shared test accounts to simulate general load.
+- **One-Time Usage:** 1,000 users each registering with a unique email address to test account creation at scale.
+
+
+### Handling Large Datasets
+
+#### Overview
+When working with large datasets in JMeter, efficient data management is essential to ensure accurate, scalable, and performant test execution. Large CSV files can introduce challenges such as memory usage, data access speed, and data integrity across multiple threads.
+
+#### Key Concepts
+- **Efficient Data Access:** JMeter streams CSV files line by line, but very large files can still impact performance if not managed properly.
+- **Memory Management:** Avoid loading entire datasets into memory; rely on JMeter’s built-in streaming and avoid unnecessary data processing in scripts.
+- **Data Partitioning:** Split large datasets into smaller files or segments if possible, especially for distributed testing.
+- **Thread Safety:** Ensure each thread accesses data correctly to prevent collisions or repeated use, especially in high-concurrency scenarios.
+- **File Location:** Store large CSV files on fast, local storage to minimize I/O bottlenecks.
+
+#### Best Practices
+- **Use Streaming:** Leverage JMeter’s CSV Data Set Config, which reads data as needed rather than loading the entire file.
+- **Limit Variable Scope:** Only read and use the columns necessary for your test to reduce processing overhead.
+- **Monitor Resource Usage:** Track memory and CPU usage during test runs to identify bottlenecks caused by large datasets.
+- **Distributed Testing:** For very large datasets, consider splitting data across multiple load generators to balance the load and avoid contention.
+- **Preprocess Data:** Clean and preprocess large datasets before the test to remove unnecessary rows or columns.
+- **Avoid Network Shares:** Place CSV files on local disks of each load generator to reduce latency and avoid network-related slowdowns.
+- **Handle End-of-File Gracefully:** Configure CSV Data Set Config to handle EOF appropriately, especially when the dataset is not large enough for all users.
+
+#### Example Scenario
+You need to simulate 10,000 unique users logging in, using a CSV file with 10,000 rows. Place the CSV file on each load generator’s local disk, configure the CSV Data Set Config to use one row per thread, and monitor system resources during the test. If running distributed tests, split the file into smaller chunks and assign each chunk to a different server to optimize performance and avoid data collisions.
+
+#### Troubleshooting Tips
+- **Slow Test Execution:** Check for I/O bottlenecks or network latency if using remote files.
+- **Out of Memory Errors:** Ensure you are not processing or loading the entire file into memory in scripts or beanshell processors.
+- **Data Collisions:** Double-check CSV Data Set Config settings and ensure enough unique rows for all threads.
+
+
+### Handling Data Collision
+
+#### Overview
+Data collision occurs when multiple virtual users or threads in a JMeter test attempt to use the same data simultaneously, leading to conflicts such as duplicate entries, session overwrites, or failed transactions. Preventing data collisions is essential for maintaining test accuracy and avoiding false negatives.
+
+#### Potential Causes
+- **Insufficient Unique Data:** Not enough unique rows in the CSV file for the number of users or iterations.
+- **Data Reuse Settings:** CSV Data Set Config is set to recycle data or share mode is not configured correctly.
+- **Concurrent Access:** Multiple threads accessing the same data row at the same time, especially in high-concurrency tests.
+- **Improper Variable Scope:** Variables are not isolated per thread, causing data to be shared unintentionally.
+- **Distributed Testing Issues:** Data files are not partitioned or synchronized across multiple load generators.
+
+#### How to Avoid Data Collision
+- **Ensure Sufficient Unique Data:** Provide enough unique rows in your CSV file for all users and iterations.
+- **Configure CSV Data Set Config Properly:** Set 'Recycle on EOF' to false and 'Stop thread on EOF' to true for one-time usage. Use 'Sharing Mode' set to 'Current thread' to isolate data per user.
+- **Partition Data for Distributed Tests:** Split data files so each load generator uses a unique subset of data.
+- **Isolate Variables:** Use thread-local variables and avoid global or shared variables for user-specific data.
+- **Monitor for Collisions:** Add assertions or checks in your test plan to detect duplicate or reused data during execution.
+- **Document Data Usage:** Clearly comment on your data management strategy to help maintain test integrity.
+
+#### Example Scenario
+You are testing a registration workflow where each user must have a unique email address. If your CSV file contains fewer emails than users, or if data is recycled, multiple users may attempt to register with the same email, causing failures. To prevent this, ensure the CSV file has enough unique emails, configure the CSV Data Set Config for one-time usage, and monitor test results for any duplicate registration attempts.
