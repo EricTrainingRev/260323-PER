@@ -767,3 +767,225 @@ Thread Group
 
 **Example:**
 You design a test plan where each user logs in with unique credentials from a CSV file, browses products three times with random think times, and conditionally adds an item to the cart based on a variable. After browsing, the user logs out. This setup closely mirrors real user journeys, providing more accurate and actionable performance insights.
+
+## Correlation
+
+### Regex Extractor
+
+#### Overview
+The Regex Extractor in JMeter is a powerful post-processor used to capture dynamic values from server responses using regular expressions. It enables correlation by extracting session IDs, tokens, or any variable data needed for subsequent requests, ensuring your test scripts remain robust and adaptable to changing server responses.
+
+#### Key Concepts
+- **Post-Processor:** The Regex Extractor operates after a sampler executes, parsing the response to extract matching values.
+- **Regular Expressions:** Patterns are defined to match and capture specific data from the response body, headers, or other fields.
+- **Variable Assignment:** Extracted values are stored in variables for use in later requests, assertions, or logic controllers.
+- **Multiple Matches:** The extractor can capture single or multiple occurrences, supporting indexed access to each match.
+- **Scope:** Can be applied to the main sample, sub-samples, or both, depending on configuration.
+
+#### Typical Workflow
+1. **Identify Dynamic Data:** Determine which values in the response need to be extracted for correlation (e.g., session IDs, tokens).
+2. **Add Regex Extractor:** Attach a Regex Extractor as a child to the relevant sampler (e.g., HTTP Request).
+3. **Configure Expression:** Define the regular expression pattern, template, and variable name for storing the result.
+4. **Test Extraction:** Use the View Results Tree listener to verify that the extractor captures the intended value(s).
+5. **Reference Variable:** Use the extracted variable (e.g., ${session_id}) in subsequent requests or logic.
+
+#### Best Practices
+- **Write Precise Patterns:** Use specific and unambiguous regular expressions to avoid capturing unintended data.
+- **Test Regular Expressions:** Validate your regex patterns with sample responses before running large tests.
+- **Handle No Match Gracefully:** Set a default value for cases where the pattern is not found to prevent test failures.
+- **Use Debug Sampler:** Add a Debug Sampler to inspect extracted variables during test development.
+- **Document Patterns:** Comment on complex regular expressions for maintainability.
+- **Limit Scope:** Apply the extractor only where necessary to optimize performance and avoid conflicts.
+
+#### Example Scenario
+You need to extract a session token from a login response to use in subsequent requests. Add a Regex Extractor to the login HTTP Request, configure the pattern to match the token (e.g., `"session_token":"(.*?)"`), and assign it to a variable named `session_token`. Reference `${session_token}` in the headers or body of following requests to maintain session continuity and ensure your test accurately simulates real user behavior.
+
+#### Example Test Plan Structure
+```
+Test Plan
+├── Thread Group
+│   ├── HTTP Request (Login)
+│   │   └── Regex Extractor (extract session_token)
+│   ├── HTTP Request (Access Protected Resource using ${session_token})
+│   └── Listener (View Results Tree)
+```
+
+**Example:**
+1. The user logs in via an HTTP Request.
+2. The Regex Extractor captures the session token from the login response and saves it as `session_token`.
+3. The next HTTP Request uses `${session_token}` in its headers or parameters to access a protected resource, ensuring the workflow is dynamic and accurately simulates authenticated user behavior.
+
+### JSON Extractor
+
+#### Overview
+The JSON Extractor in JMeter is a post-processor designed to extract values from JSON responses using JSONPath expressions. It is essential for handling modern APIs and web applications that return data in JSON format, enabling dynamic correlation of tokens, IDs, and other values required for subsequent requests.
+
+#### Key Concepts
+- **Post-Processor:** Operates after a sampler, parsing the JSON response to extract specified values.
+- **JSONPath Expressions:** Uses JSONPath syntax to pinpoint and extract data from complex JSON structures.
+- **Variable Assignment:** Extracted values are stored in variables for use in later requests, assertions, or logic controllers.
+- **Multiple Matches:** Supports extracting single or multiple values, with indexed variable access.
+- **Scope:** Can be configured to process the main sample, sub-samples, or both.
+
+#### Typical Workflow
+1. **Identify Dynamic Data:** Determine which values in the JSON response need to be extracted (e.g., tokens, IDs).
+2. **Add JSON Extractor:** Attach a JSON Extractor as a child to the relevant sampler (e.g., HTTP Request).
+3. **Configure JSONPath:** Define the JSONPath expression and variable name for storing the result.
+4. **Test Extraction:** Use the View Results Tree listener to verify that the extractor captures the intended value(s).
+5. **Reference Variable:** Use the extracted variable (e.g., ${auth_token}) in subsequent requests or logic.
+
+#### Best Practices
+- **Write Accurate JSONPath Expressions:** Ensure your expressions precisely target the required data to avoid incorrect extraction.
+- **Test with Sample Responses:** Validate JSONPath expressions using sample responses before running large tests.
+- **Handle Missing Data Gracefully:** Set default values for cases where the path is not found to prevent test failures.
+- **Use Debug Sampler:** Add a Debug Sampler to inspect extracted variables during test development.
+- **Document Expressions:** Comment on complex JSONPath expressions for maintainability.
+- **Limit Scope:** Apply the extractor only where necessary to optimize performance and avoid conflicts.
+
+#### Example Scenario
+You need to extract an authentication token from a JSON login response for use in subsequent API calls. Add a JSON Extractor to the login HTTP Request, configure the JSONPath expression to match the token (e.g., `$.auth.token`), and assign it to a variable named `auth_token`. Reference `${auth_token}` in the headers or body of following requests to maintain session continuity and ensure your test accurately simulates real user behavior.
+
+#### Example Test Plan Structure
+```
+Test Plan
+├── Thread Group
+│   ├── HTTP Request (Login)
+│   │   └── JSON Extractor (extract auth_token)
+│   ├── HTTP Request (Access Protected Resource using ${auth_token})
+│   └── Listener (View Results Tree)
+```
+
+**Example:**
+1. The user logs in via an HTTP Request.
+2. The JSON Extractor captures the authentication token from the JSON response and saves it as `auth_token`.
+3. The next HTTP Request uses `${auth_token}` in its headers or parameters to access a protected resource, ensuring the workflow is dynamic and accurately simulates authenticated user behavior.
+
+### Session Handling
+
+#### Overview
+Session handling in JMeter refers to the management of user sessions and stateful interactions during performance testing. Many web applications use sessions to track user authentication, preferences, and activity. Proper session management is essential for realistic test execution, as it ensures each virtual user maintains a unique and valid session throughout the test.
+
+#### Key Concepts
+- **Session State:** Represents the continuity of a user's interaction with the system, often maintained via cookies, tokens, or URL parameters.
+- **Cookie Management:** JMeter’s HTTP Cookie Manager automatically handles cookies for each thread, simulating browser-like session behavior.
+- **Token-Based Sessions:** Modern APIs often use tokens (e.g., JWT, OAuth) for session management, requiring extraction and reuse of tokens in subsequent requests.
+- **Correlation:** Extracting and injecting session identifiers (cookies, tokens, dynamic IDs) into requests to maintain session continuity.
+- **Thread Isolation:** Each JMeter thread (user) should have an independent session to avoid data collisions and ensure accurate simulation.
+
+#### Typical Workflow
+1. **Enable Cookie Manager:** Add an HTTP Cookie Manager to your test plan to handle cookies automatically for each user thread.
+2. **Extract Session Identifiers:** Use extractors (Regex, JSON, XPath) to capture session tokens or IDs from responses when cookies are not used.
+3. **Parameterize Requests:** Insert extracted session values into headers, parameters, or bodies of subsequent requests.
+4. **Validate Session Continuity:** Use assertions or listeners to verify that each user maintains a valid session throughout the test.
+5. **Handle Logouts/Timeouts:** Simulate session expiration or user logout scenarios if required by the test objectives.
+
+#### Best Practices
+- **Use HTTP Cookie Manager:** Always include a Cookie Manager for web applications that use cookies for session tracking.
+- **Isolate Sessions:** Ensure each thread has its own session context to avoid cross-user contamination.
+- **Extract and Reuse Tokens:** For token-based authentication, extract tokens after login and reuse them in all subsequent requests.
+- **Monitor Session Validity:** Add checks to confirm that sessions remain valid (e.g., look for redirects to login pages or error messages).
+- **Simulate Realistic Behavior:** Include actions like login, navigation, and logout to mimic real user workflows.
+- **Document Session Strategy:** Clearly comment on how sessions are managed in your test plan for maintainability.
+
+#### Example Test Plan Structure
+```
+Test Plan
+├── Thread Group
+│   ├── HTTP Cookie Manager
+│   ├── HTTP Request (Login)
+│   │   └── JSON Extractor (extract auth_token)
+│   ├── HTTP Header Manager (set Authorization: Bearer ${auth_token})
+│   ├── HTTP Request (Access Protected Resource)
+│   └── Listener (View Results Tree)
+```
+
+**Example:**
+1. Each user logs in, and the session is established via cookies or tokens.
+2. The Cookie Manager or extracted token maintains session continuity for each thread.
+3. Subsequent requests use the session context, accurately simulating real-world user behavior and validating the system’s session management under load.
+
+### Token Management
+
+#### Overview
+Token management in JMeter involves handling various types of tokens used for authentication, authorization, and session continuity during performance testing. Tokens are commonly used in modern web applications and APIs to secure communication and maintain user state. Effective token management ensures that each virtual user can authenticate and interact with the system as intended.
+
+#### Key Concepts
+- **Authentication Tokens:** Used to verify user identity (e.g., JWT, OAuth, SAML, API keys).
+- **Session Tokens:** Maintain session state across multiple requests, often issued after login.
+- **CSRF Tokens:** Protect against cross-site request forgery by requiring a unique token for each form submission or sensitive action.
+- **Dynamic Extraction:** Tokens are often generated dynamically and must be extracted from responses for use in subsequent requests.
+- **Token Renewal/Expiration:** Some tokens have limited lifespans and require renewal or refresh during longer tests.
+- **Secure Handling:** Tokens should be managed securely to avoid leaks or misuse during testing.
+
+#### Typical Workflow
+1. **Login or Initial Request:** User authenticates and receives a token in the response (e.g., in JSON, headers, or cookies).
+2. **Extract Token:** Use a JSON Extractor, Regex Extractor, or other post-processor to capture the token value.
+3. **Store in Variable:** Assign the extracted token to a variable for easy reuse.
+4. **Reuse Token:** Insert the token into headers, parameters, or request bodies as required by the application/API.
+5. **Handle Expiry:** If tokens expire, implement logic to refresh or re-authenticate as needed.
+
+#### Best Practices
+- **Automate Extraction:** Always use extractors to dynamically capture tokens rather than hardcoding values.
+- **Parameterize Usage:** Reference token variables in all requests that require authentication or session continuity.
+- **Monitor Expiry:** Be aware of token lifespans and implement refresh logic if necessary.
+- **Secure Storage:** Avoid logging sensitive tokens in plain text or exposing them in reports.
+- **Test Token Scenarios:** Simulate scenarios such as token expiration, invalid tokens, or concurrent usage to validate system robustness.
+- **Document Token Flow:** Clearly comment on how tokens are managed and used in your test plan.
+
+#### Example Test Plan Structure
+```
+Test Plan
+├── Thread Group
+│   ├── HTTP Request (Login)
+│   │   └── JSON Extractor (extract access_token)
+│   ├── HTTP Header Manager (set Authorization: Bearer ${access_token})
+│   ├── HTTP Request (Perform Authenticated Action)
+│   └── Listener (View Results Tree)
+```
+
+**Example:**
+1. The user logs in and receives an access token in the response.
+2. The token is extracted and stored in the variable `access_token`.
+3. All subsequent requests include the token in the Authorization header, ensuring authenticated access and session continuity.
+
+### Dynamic IDs
+
+#### Overview
+Dynamic IDs are unique values generated by applications for each session, transaction, or user action. These IDs—such as order numbers, cart IDs, request IDs, or workflow tokens—are often required in subsequent requests to maintain workflow integrity and simulate realistic user behavior during performance testing.
+
+#### Key Concepts
+- **Uniqueness:** Dynamic IDs are typically generated by the server and change with each session or transaction.
+- **Correlation:** Extracting dynamic IDs from responses and injecting them into future requests is essential for accurate test execution.
+- **Multiple Occurrences:** Some responses may contain multiple dynamic IDs (e.g., lists of items), requiring indexed extraction and reuse.
+- **Chained Requests:** Dynamic IDs often link a sequence of dependent requests (e.g., create order → update order → delete order).
+- **Variable Assignment:** Extracted IDs are stored in variables for use in subsequent samplers or controllers.
+
+#### Typical Workflow
+1. **Identify Dynamic IDs:** Determine which IDs are generated dynamically and required for later steps.
+2. **Extract IDs:** Use Regex Extractor, JSON Extractor, or XPath Extractor to capture the ID from the relevant response.
+3. **Store in Variable:** Assign the extracted ID to a variable (e.g., `order_id`).
+4. **Reuse in Requests:** Reference the variable in subsequent requests to maintain workflow continuity.
+5. **Handle Multiple IDs:** If multiple IDs are present, use indexed variables or loops to process each as needed.
+
+#### Best Practices
+- **Map Workflows:** Clearly map out workflows to identify where dynamic IDs are generated and consumed.
+- **Automate Extraction:** Always extract IDs dynamically rather than hardcoding values.
+- **Validate Extraction:** Use listeners and assertions to confirm IDs are captured and used correctly.
+- **Handle Lists:** For responses with multiple IDs, use JMeter’s variable indexing to iterate through each value.
+- **Document ID Flow:** Comment on where and how dynamic IDs are managed in your test plan for clarity and maintainability.
+
+#### Example Test Plan Structure
+```
+Test Plan
+├── Thread Group
+│   ├── HTTP Request (Create Order)
+│   │   └── JSON Extractor (extract order_id)
+│   ├── HTTP Request (Update Order using ${order_id})
+│   ├── HTTP Request (Delete Order using ${order_id})
+│   └── Listener (View Results Tree)
+```
+
+**Example:**
+1. The user creates an order, and the server returns a unique `order_id` in the response.
+2. The `order_id` is extracted and stored in a variable.
+3. Subsequent requests (update, delete) use `${order_id}` to reference the correct order, ensuring the workflow is consistent and accurately simulates real user actions.
