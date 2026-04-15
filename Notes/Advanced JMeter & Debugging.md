@@ -227,3 +227,108 @@ Thread Group
 - Specify the header field in the extractor configuration.
 - Use Debug Sampler to confirm header values are captured.
 - Handle missing headers gracefully with default values.
+
+## Report Interpretation
+
+### Percentiles
+
+Percentiles are a key metric for interpreting performance test results, providing insight into the distribution of response times beyond simple averages. A percentile (such as the 90th, 95th, or 99th) indicates the value below which a given percentage of observations fall. For example, a 95th percentile response time of 400ms means that 95% of requests completed in 400ms or less, while the slowest 5% took longer.
+
+**Why Percentiles Matter:**
+- Averages can hide outliers and spikes; percentiles reveal the true user experience for the majority and highlight tail latencies.
+- SLAs and SLOs are often defined using percentiles (e.g., "95% of requests must complete in under 500ms").
+- High percentiles (like 99th) help identify rare but severe slowdowns that can impact user satisfaction.
+
+**How to Interpret Percentiles in Reports:**
+- Compare the 50th (median), 90th, 95th, and 99th percentiles to understand both typical and worst-case performance.
+- A large gap between the median and higher percentiles suggests occasional spikes or bottlenecks.
+- Consistently high percentiles may indicate systemic issues, while only the highest percentiles being elevated points to rare outliers.
+
+**Example:**
+If your report shows:
+- 50th percentile (median): 200ms
+- 95th percentile: 400ms
+- 99th percentile: 900ms
+This means most users experience fast responses, but a small fraction encounter much slower times, potentially due to resource contention, backend delays, or network issues.
+
+**Tips:**
+- Always review percentiles alongside averages and maximums for a complete picture.
+- Use percentiles to set realistic performance targets and SLAs.
+- Investigate causes of high tail latencies to improve overall user experience.
+
+### Error Analysis
+
+Error analysis in performance testing focuses on understanding how the system behaves under load and identifying where and why failures occur as concurrency and throughput increase. The primary goal is to distinguish between errors caused by system overload, resource exhaustion, or architectural bottlenecks, rather than functional correctness.
+
+**Performance-Related Errors to Track:**
+- **HTTP 5xx Errors:** Indicate server-side failures, often due to resource exhaustion, thread pool depletion, or backend timeouts under heavy load.
+- **Timeouts:** Requests that do not complete within the expected time window, signaling that the system cannot keep up with demand.
+- **Connection Failures:** Occur when the server cannot accept new connections, often due to thread or connection pool limits being reached.
+- **High Error Rates Under Load:** A rising error rate as concurrency increases is a classic sign of system saturation or bottleneck.
+
+**Why Error Analysis Matters in Performance Testing:**
+- High error rates during load tests invalidate throughput and response time metrics—only successful requests count toward real capacity.
+- Errors under load reveal the true breaking point of the system and help identify scaling limits.
+- Understanding error patterns helps prioritize infrastructure or code changes to improve resilience and scalability.
+
+**How to Interpret Errors in Performance Reports:**
+- Correlate error spikes with increases in user load, throughput, or resource utilization.
+- Look for thresholds where error rates sharply increase—these mark system capacity limits.
+- Analyze error types: Are they mostly timeouts, server errors, or connection refusals? Each points to a different bottleneck (e.g., CPU, memory, thread pool, database).
+- Use error analysis to inform tuning efforts (e.g., increasing thread pools, optimizing queries, scaling infrastructure).
+
+**Example:**
+If a test shows a 2% error rate, with most errors being HTTP 500 responses and timeouts only at peak load, this suggests the system is reaching its backend or resource limits. If errors appear only as load increases, the system is likely hitting a scalability threshold.
+
+**Tips:**
+- Focus on error rates and types as load increases, not just their presence.
+- Use error analysis to determine safe operating capacity and inform scaling decisions.
+- Always validate that reported throughput and response times exclude failed requests for accurate interpretation.
+
+
+### Throughput Analysis
+
+Throughput measures how many requests or transactions the system can process per unit of time (e.g., requests per second or transactions per second). In performance testing, throughput is a direct indicator of system capacity and is critical for understanding how much load your application can handle before performance degrades.
+
+**Key Points About Throughput:**
+- Throughput reflects the actual work done by the system, not just the number of requests sent.
+- Only successful (non-error) requests should be counted when interpreting throughput.
+- Throughput typically increases with load up to a point, then plateaus or drops as the system reaches its capacity limit.
+
+**How to Interpret Throughput in Reports:**
+- Plot throughput against concurrent users or request rate to identify the system’s maximum sustainable throughput.
+- Look for the point where throughput stops increasing or starts to decline—this is usually where bottlenecks or resource limits are reached.
+- Compare throughput with error rates and response times: a plateau in throughput accompanied by rising errors or response times signals system saturation.
+
+**Example:**
+If throughput rises steadily as users increase, but then levels off at 1,000 requests/second while error rates and response times spike, the system’s true capacity is around 1,000 requests/second under current conditions.
+
+**Tips:**
+- Use throughput to set realistic scaling targets and SLAs.
+- Always analyze throughput in conjunction with percentiles and error rates for a complete performance picture.
+- Investigate what limits throughput (CPU, memory, database, network) when a plateau is observed.
+
+
+### Identifying Patterns
+
+Identifying patterns in performance test results is crucial for diagnosing bottlenecks, understanding system behavior, and guiding optimization efforts. Patterns can emerge in response times, throughput, error rates, and resource utilization, revealing how the system responds to different loads and where issues may arise.
+
+**Common Patterns to Look For:**
+- **Throughput Plateau:** Throughput increases with load up to a point, then levels off—indicating a system bottleneck or resource limit.
+- **Response Time Spikes:** Sudden increases in response times, especially as load rises, often signal contention for resources (CPU, memory, database connections).
+- **Error Rate Surges:** Errors that appear or spike at specific load levels mark the system’s breaking point or misconfiguration.
+- **Resource Saturation:** CPU, memory, disk, or network utilization reaching high levels (e.g., >85–90%) can explain slowdowns or failures.
+- **Gradual Degradation:** Performance metrics worsen steadily over time, possibly due to memory leaks, connection exhaustion, or inefficient code paths.
+
+**How to Use Patterns in Analysis:**
+- Correlate changes in throughput, response time, and error rates with resource metrics to pinpoint root causes.
+- Look for repeating cycles or trends (e.g., periodic spikes) that may indicate scheduled jobs, garbage collection, or batch processing.
+- Use patterns to prioritize investigation—address the most impactful or earliest-occurring bottlenecks first.
+
+**Example:**
+If you observe that response times and error rates spike every hour, check for scheduled background jobs or batch processes. If throughput plateaus while CPU is maxed out, CPU is likely the limiting factor.
+
+**Tips:**
+- Visualize metrics together (e.g., overlay throughput, response time, and error rate graphs) for clearer pattern recognition.
+- Document observed patterns and hypotheses to guide future tests and tuning.
+- Patterns often repeat across environments—lessons learned in testing can inform production monitoring and alerting.
