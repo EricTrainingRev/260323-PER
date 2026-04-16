@@ -6,25 +6,22 @@
 ### Authentication Tokens
 
 #### Focus: API Endpoint Performance
-When testing individual API service endpoints, authentication tokens (like JWTs or session tokens) are often required for access. The goal is to simulate real-world API usage by acquiring and using tokens dynamically for each test thread or user.
+When testing individual API service endpoints, authentication tokens (like JWTs or session tokens) are often required for access. The goal is to simulate real-world API usage by providing auth tokens/resources for each test thread or user.
 
 **Typical Flow:**
-1. **Obtain Token:** Send a login or authentication request to the API endpoint.
-2. **Extract Token:** Use a JSON or Regex Extractor to capture the token from the response (e.g., `${auth_token}`).
-3. **Test Endpoints:** For each target API endpoint, include the token in the request header (e.g., `Authorization: Bearer ${auth_token}`) to authenticate.
+1. **Obtain Token:** Generate tokens for test use
+3. **Test Endpoints:** For each target API endpoint, include a valid token in the request header (e.g., `Authorization: Bearer ${auth_token}`) to authenticate.
 
 **Example Structure:**
 ```
 Thread Group
-├── HTTP Request (Login)
-│   └── JSON Extractor (auth_token)
 ├── HTTP Request (Test Endpoint 1 with ${auth_token})
 └── Listener (View Results Tree)
 ```
 
 **Tips:**
 - Focus on one endpoint per sampler for clear results and easier bottleneck identification.
-- Extract tokens dynamically when you can.
+- Provide tokens dynamically when you can.
 - Use assertions to verify successful authentication and endpoint responses.
 
 This keeps your API performance tests realistic and maintainable, applying core JMeter techniques to real API service scenarios.
