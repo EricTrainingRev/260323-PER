@@ -1,0 +1,26 @@
+[
+    {
+        "actionName": "Action",
+        "steps": [
+            {
+                "stepId": "STEP1",
+                "stepName": "Url: localhost:8080",
+                "infFile": "t1.inf",
+                "time": 1776711522362
+            },
+            {
+                "stepId": "STEP2",
+                "stepName": "Link: Register here",
+                "infFile": "t2.inf",
+                "time": 1776711522441
+            },
+            {
+                "stepId": "STEP3",
+                "stepName": "Custom Request: register",
+                "infFile": "t3.inf",
+                "time": 1776711522614
+            }
+        ],
+        "transactions": []
+    }
+]

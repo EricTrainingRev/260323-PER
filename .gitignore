@@ -75,3 +75,24 @@ user.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,jmeter,java,git
 *.idea/
+
+# Binaries and compiled files
+*.lrs
+*.bak
+*.obj
+*.res
+output.txt
+
+# Log and temporary files
+*.tmp
+*.txt
+*.log
+*.err
+
+# Output folders
+results/
+data/
+debug/
+
+# VuGen backup files
+*.bak
