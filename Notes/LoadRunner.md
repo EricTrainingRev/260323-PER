@@ -154,3 +154,128 @@ When a script replays with hardcoded values, the server may reject requests due 
 - Use automatic correlation where possible, but verify accuracy
 - Manually correlate complex or custom values
 - Test scripts thoroughly to ensure all correlations are handled
+
+## VuGen Correlation & Parameterization
+
+### Handling Dynamic Data
+
+Handling dynamic data is a core skill in performance scripting with VuGen. Applications often generate values that change with every session or user, such as session IDs, tokens, timestamps, and user-specific data. To ensure scripts replay reliably and simulate real user behavior, you must address two key techniques: correlation and parameterization.
+
+#### Correlation: Capturing Server-Generated Values
+Correlation is the process of extracting dynamic values from server responses and using them in subsequent requests. Without correlation, scripts may fail because hardcoded values quickly become invalid.
+
+**Example Problem:**
+> During recording, the server sends `sessionId = "ABC123"`. On replay, the server expects a new value (e.g., `sessionId = "XYZ789"`). If the script sends the old value, the server rejects the request.
+
+**Solution:**
+Use correlation functions to capture the new value at runtime:
+```c
+// Extract sessionId from a JSON response using JSON extractor
+web_reg_save_param_json(
+	"ParamName=sessionId",
+	"QueryString=$.sessionId",
+	SEARCH_FILTERS,
+	LAST);
+
+// Use the captured value in a subsequent request
+web_submit_data("NextRequest",
+	...
+	"Name=sessionId", "Value={sessionId}", ENDITEM,
+	...);
+```
+
+**Common Values to Correlate:**
+- Session IDs (e.g., `JSESSIONID`)
+- CSRF tokens
+- View states (e.g., `__VIEWSTATE`)
+- Timestamps
+- Transaction IDs
+
+**Best Practices:**
+- Use automatic correlation where possible, but always verify by replaying scripts
+- Manually correlate complex or custom values using boundaries or JSONPath
+- Test thoroughly to ensure all dynamic data is handled
+
+#### Parameterization: Making Scripts Data-Driven
+Parameterization replaces static (hardcoded) values in scripts with dynamic data, such as user credentials, search terms, or product IDs. This makes tests more realistic and prevents server-side caching from skewing results.
+
+**Example:**
+```c
+// Before: Hardcoded value
+web_submit_data("Search",
+	"Action=https://shop.example.com/search",
+	ITEMDATA,
+	"Name=query", "Value=laptop", ENDITEM,
+	LAST);
+
+// After: Parameterized value
+web_submit_data("Search",
+	"Action=https://shop.example.com/search",
+	ITEMDATA,
+	"Name=query", "Value={SearchTerm}", ENDITEM,
+	LAST);
+```
+
+**Parameter Types:**
+- File (CSV/DAT): Usernames, passwords, product IDs
+- Random/Unique Number: Order or transaction IDs
+- Date/Time: Timestamps
+- User Defined: Custom values for environment or test scenario
+
+**Best Practices:**
+- Use realistic, varied data to simulate real users
+- Ensure parameter files have enough unique values for the test
+- Choose appropriate update methods (sequential, random, unique)
+
+### Script Enhancement
+
+Script enhancement is the process of refining your VuGen scripts to make them more robust, maintainable, and reflective of real-world user behavior. Beyond basic recording and dynamic data handling, script enhancement ensures your tests deliver meaningful results and are easy to update as applications evolve.
+
+#### Modular Script Structure
+Organize scripts into logical sections:
+- `vuser_init`: Initialization (e.g., login, setup)
+- `Action`: Main business workflow (repeatable actions)
+- `vuser_end`: Cleanup (e.g., logout, resource release)
+For complex workflows, split actions into multiple files (e.g., `Action1.c`, `Action2.c`).
+
+#### Use Think Time and Pacing
+Simulate real user behavior by adding think time between actions and controlling pacing between iterations. This avoids unrealistic, machine-gun request patterns.
+```c
+// Pause for 3 seconds to simulate user reading
+lr_think_time(3);
+```
+
+#### Parameterize and Correlate Thoroughly
+Review scripts to ensure all static values are parameterized and all dynamic values are correlated. This maximizes realism and script reusability.
+
+#### Comment and Document
+Add comments to explain complex logic, correlation rules, and parameter usage. Well-documented scripts are easier to maintain and hand off to other testers.
+
+By enhancing your scripts with these practices, you create reliable, maintainable, and insightful performance tests that provide real value to your projects.
+
+### Transaction Response Measurement
+
+Measuring transaction response times is a core objective of performance testing. In VuGen, transactions allow you to capture the duration of key business processes and validate that they meet performance requirements.
+
+#### Defining Transactions
+Wrap critical actions or workflows with `lr_start_transaction` and `lr_end_transaction` to measure their response times:
+```c
+lr_start_transaction("Login");
+// Perform login steps
+lr_end_transaction("Login", LR_AUTO);
+```
+You can define multiple transactions in a script to measure each important step (e.g., search, add to cart, checkout).
+
+#### Analyzing Results
+After test execution, analyze transaction response times and pass/fail rates in the LoadRunner Analysis tool or Controller. Look for:
+- Average, minimum, and maximum response times
+- Percentiles (e.g., 90th, 95th)
+- Number and percentage of failed transactions
+
+#### Best Practices
+- Clearly define transaction boundaries around user-facing actions
+- Use descriptive names for easy reporting
+- Validate success before ending transactions
+- Investigate and address slow or failing transactions
+
+Accurate transaction measurement provides actionable insights into application performance and helps ensure you meet service level objectives (SLOs).

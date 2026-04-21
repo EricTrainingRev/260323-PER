@@ -1,0 +1,13 @@
+[t3]
+SnapshotXmlFile=snapshot_3.xml
+ContentType=application/json
+StepName=Custom Request: register
+Total=1
+FileName1=t3.json
+RequestHeaderFile=t3_RequestHeader.txt
+ResponseHeaderFile=t3_ResponseHeader.txt
+RawStepEndTime=1776782660780
+RawStepName=register
+RequestBodyFile=t3_RequestBody.txt
+RawStepStartTime=1776782660755
+URL1=http://localhost:8080/register

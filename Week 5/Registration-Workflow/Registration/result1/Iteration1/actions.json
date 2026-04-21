@@ -1,0 +1,48 @@
+[
+    {
+        "actionName": "Register",
+        "steps": [
+            {
+                "stepId": "STEP1",
+                "stepName": "Url: {URL}:{PORT}",
+                "infFile": "t1.inf",
+                "time": 1776782652504
+            },
+            {
+                "stepId": "STEP2",
+                "stepName": "Link: Register here",
+                "infFile": "t2.inf",
+                "time": 1776782656610
+            },
+            {
+                "stepId": "STEP3",
+                "stepName": "Custom Request: register",
+                "infFile": "t3.inf",
+                "time": 1776782660792
+            }
+        ],
+        "transactions": [
+            {
+                "transactionName": "Open Login Page",
+                "rawStartTime": 1776782652273,
+                "rawEndTime": 1776782652507,
+                "thinkTime": 0.0,
+                "wastedTime": 0.15700674057006837
+            },
+            {
+                "transactionName": "Open Register Page",
+                "rawStartTime": 1776782656563,
+                "rawEndTime": 1776782656624,
+                "thinkTime": 0.0,
+                "wastedTime": 0.007223606109619141
+            },
+            {
+                "transactionName": "Register Account",
+                "rawStartTime": 1776782660739,
+                "rawEndTime": 1776782660801,
+                "thinkTime": 0.0,
+                "wastedTime": 0.005637168884277344
+            }
+        ]
+    }
+]

@@ -1,0 +1,6 @@
+[vuser_init]
+SnapshotIndex=I1_vuser_init
+[Register]
+SnapshotIndex=I1_Register
+[vuser_end]
+SnapshotIndex=I1_vuser_end
