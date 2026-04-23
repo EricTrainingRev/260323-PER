@@ -1,0 +1,114 @@
+[
+    {
+        "actionName": "Action",
+        "steps": [
+            {
+                "stepId": "STEP1",
+                "stepName": "Url: localhost:8080",
+                "infFile": "t1.inf",
+                "time": 1776881380095
+            },
+            {
+                "stepId": "STEP2",
+                "stepName": "Link: Register here",
+                "infFile": "t2.inf",
+                "time": 1776881380191
+            },
+            {
+                "stepId": "STEP3",
+                "stepName": "Custom Request: register",
+                "infFile": "t4.inf",
+                "time": 1776881380390
+            },
+            {
+                "stepId": "STEP4",
+                "stepName": "Url: index.html",
+                "infFile": "t5.inf",
+                "time": 1776881380525
+            },
+            {
+                "stepId": "STEP5",
+                "stepName": "Url: dashboard.html",
+                "infFile": "t7.inf",
+                "time": 1776881380780
+            },
+            {
+                "stepId": "STEP6",
+                "stepName": "Url: todo",
+                "infFile": "t8.inf",
+                "time": 1776881380871
+            },
+            {
+                "stepId": "STEP7",
+                "stepName": "Url: index.html_2",
+                "infFile": "t10.inf",
+                "time": 1776881381085
+            }
+        ],
+        "transactions": [
+            {
+                "transactionName": "open login",
+                "rawStartTime": 1776881379985,
+                "rawEndTime": 1776881380111,
+                "thinkTime": 0.0,
+                "wastedTime": 0.056176185607910159
+            },
+            {
+                "transactionName": "open registration",
+                "rawStartTime": 1776881380159,
+                "rawEndTime": 1776881380206,
+                "thinkTime": 0.0,
+                "wastedTime": 0.0031583309173583986
+            },
+            {
+                "transactionName": "register account",
+                "rawStartTime": 1776881380332,
+                "rawEndTime": 1776881380395,
+                "thinkTime": 0.0,
+                "wastedTime": 0.004910469055175781
+            },
+            {
+                "transactionName": "open login",
+                "rawStartTime": 1776881380489,
+                "rawEndTime": 1776881380536,
+                "thinkTime": 0.0,
+                "wastedTime": 0.0049304962158203129
+            },
+            {
+                "transactionName": "login",
+                "rawStartTime": 1776881380615,
+                "rawEndTime": 1776881380663,
+                "thinkTime": 0.0,
+                "wastedTime": 0.0036094188690185549
+            },
+            {
+                "transactionName": "open dashboard",
+                "rawStartTime": 1776881380742,
+                "rawEndTime": 1776881380789,
+                "thinkTime": 0.0,
+                "wastedTime": 0.00473332405090332
+            },
+            {
+                "transactionName": "get todos",
+                "rawStartTime": 1776881380837,
+                "rawEndTime": 1776881380884,
+                "thinkTime": 0.0,
+                "wastedTime": 0.003282785415649414
+            },
+            {
+                "transactionName": "logout",
+                "rawStartTime": 1776881380931,
+                "rawEndTime": 1776881380978,
+                "thinkTime": 0.0,
+                "wastedTime": 0.002925395965576172
+            },
+            {
+                "transactionName": "open login",
+                "rawStartTime": 1776881381057,
+                "rawEndTime": 1776881381088,
+                "thinkTime": 0.0,
+                "wastedTime": 0.0030901432037353517
+            }
+        ]
+    }
+]

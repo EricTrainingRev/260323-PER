@@ -1,0 +1,13 @@
+[t10]
+SnapshotXmlFile=snapshot_9.xml
+ContentType=text/html
+StepName=Url: index.html_2
+Total=1
+FileName1=t10.html
+RequestHeaderFile=t10_RequestHeader.txt
+ResponseHeaderFile=t10_ResponseHeader.txt
+RawStepEndTime=1776881381076
+RawStepName=index.html_2
+RequestBodyFile=t10_RequestBody.txt
+RawStepStartTime=1776881381072
+URL1=http://localhost:8080/index.html

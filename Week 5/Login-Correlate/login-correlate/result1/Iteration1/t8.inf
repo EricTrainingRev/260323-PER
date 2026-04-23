@@ -1,0 +1,13 @@
+[t8]
+SnapshotXmlFile=snapshot_7.xml
+ContentType=application/json
+StepName=Url: todo
+Total=1
+FileName1=t8.json
+RequestHeaderFile=t8_RequestHeader.txt
+ResponseHeaderFile=t8_ResponseHeader.txt
+RawStepEndTime=1776881380862
+RawStepName=todo
+RequestBodyFile=t8_RequestBody.txt
+RawStepStartTime=1776881380852
+URL1=http://localhost:8080/todo

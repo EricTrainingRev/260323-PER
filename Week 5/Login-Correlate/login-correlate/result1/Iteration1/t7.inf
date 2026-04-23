@@ -1,0 +1,13 @@
+[t7]
+SnapshotXmlFile=snapshot_6.xml
+ContentType=text/html
+StepName=Url: dashboard.html
+Total=1
+FileName1=t7.html
+RequestHeaderFile=t7_RequestHeader.txt
+ResponseHeaderFile=t7_ResponseHeader.txt
+RawStepEndTime=1776881380772
+RawStepName=dashboard.html
+RequestBodyFile=t7_RequestBody.txt
+RawStepStartTime=1776881380758
+URL1=http://localhost:8080/dashboard.html

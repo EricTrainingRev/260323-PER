@@ -1,0 +1,13 @@
+[t1]
+SnapshotXmlFile=snapshot_1.xml
+ContentType=text/html
+StepName=Url: localhost:8080
+Total=1
+FileName1=t1.html
+RequestHeaderFile=t1_RequestHeader.txt
+ResponseHeaderFile=t1_ResponseHeader.txt
+RawStepEndTime=1776881380063
+RawStepName=localhost:8080
+RequestBodyFile=t1_RequestBody.txt
+RawStepStartTime=1776881380001
+URL1=http://localhost:8080/

@@ -1,0 +1,72 @@
+﻿[Workspace]
+SessionStartTime=0
+SessionEndTime=151
+VerNo=13
+IsSummaryData=0
+TimeFormat=0
+SesLang=ENU
+ABuild=0
+DataBaseName=resl8220763321DB
+DBType=1
+CurrServer=REV-PF3V8BE4
+CurrUser=sa
+CurrPswd===
+StorageLoc=\\REV-PF3V8BE4\Data\
+PhStorageLoc=C:\MSSQL7\Data
+LocStorageLoc=
+LocPhStorageLoc=
+WinIntSec=0
+UseNetworkMode=0
+UseParallel=1
+UseManagedIndexes=1
+UseSpecMSSQLParams=1
+NumResults=1
+
+[Data Config]
+CollectionMode=2
+IngnoreFlds=Vuser ID
+IngnoreUIFlds=VuserID
+AggSecGran=1
+TransAgg=1
+DataPointAgg=1
+WebAgg=1
+MonAgg=0
+ErrAgg=0
+FilterEdge=0
+FSartTime=0
+FEndTime=0
+
+[Result0]
+LRRID=
+ResultPath=C:\Users\EricSuminski\AppData\Local\Temp\res\res.lrr
+ResultTDPath=
+NumFilters=0
+ScenarioTimeZone=18000
+DaylightSavingSecsAddition=3600
+ScenarioStartTime=1776891541
+ScenarioEndTime=1776891692
+ResInSD=0
+WebGran=5
+FilterEdge=0
+FSartTime=0
+FEndTime=0
+TDTestID=-1
+TDRunID=-1
+IsProTuneResult=0
+GraphScale=0
+Scenario Type=Manual
+Schedule Name=Schedule 1
+Mode=Scenario Scheduling
+Load Behavior=Initialize all Vusers simultaneously
+Scenario Duration=Start 10 Vusers: 1 every 00:00:05 (HH:MM:SS); Run for 00:00:30 (HH:MM:SS); Stop all Vusers: 1 every 00:00:05 (HH:MM:SS)
+Global Schedule=ST10_1E5;R30;SP10_1E5;
+NumGraphs=5
+
+[DimensionFunctions]
+DimeFuncCount=1
+DimeFuncType0=FuncFragment
+FunctionName_UI0=Think Time
+DimensionName_UI0=Transaction Response Time,Aminimum,Amaximum
+FunctionFragmentValues_UI0=-Include Think Time
+DimensionFragmentValues_UI0=!([Value]-[Think Time])!
+
