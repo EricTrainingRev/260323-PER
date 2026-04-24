@@ -1,0 +1,224 @@
+<html xmlns:fo="http://www.w3.org/1999/XSL/Format">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Performance Testing Report</title>
+<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body class="match_report_template">
+<div id="leftnavigation">
+<div class="divHeader">NeoLoad Test Report</div>
+<div class="menu_wrapper">
+<div class="item">
+<a href="./summary.html">Summary</a>
+</div>
+<div class="subitem">
+<a href="./summary.html#report.resultssummary">Results summary</a>
+</div>
+<div class="subitem">
+<a href="./summary.html#report.statisticssummary">Statistics Summary</a>
+</div>
+<div class="subitem">
+<a href="./summary.html#report.hotspots">Hot spots</a>
+</div>
+<div class="subitem">
+<a href="./summary.html#report.errors">Errors</a>
+</div>
+<div class="subitem">
+<a href="./summary.html#report.alerts">Alerts</a>
+</div>
+<div class="subitem">
+<a href="./summary.html#report.summary.all">General statistics</a>
+</div>
+<div class="subitem">
+<a href="./summary.html#report.summary.transactions">Transaction statistics</a>
+</div>
+<div class="item">
+<a href="./settings.html">Execution context</a>
+</div>
+<div class="item">
+<a href="./populations.html">Populations</a>
+</div>
+<div class="item">
+<a href="./virtual-users.html">User Paths</a>
+</div>
+<div class="item">
+<a href="./requests.html">Requests</a>
+</div>
+<div class="item">
+<a href="./sla-profiles-details.html">SLA per SLA Profile</a>
+</div>
+<div class="item">
+<a href="./sla-details-results-per-vu.html">SLA per User Path</a>
+</div>
+<div class="item">
+<a href="./scenario_Registration Scenario.html">Scenario</a>
+</div>
+<div class="title">Main graphs</div>
+<div class="item">
+<a href="./Main graphs_requests.average.html">Average request response time</a>
+</div>
+<div class="item">
+<a href="./Main graphs_hits.html">Requests per second</a>
+</div>
+<div class="item">
+<a href="./Main graphs_errors.html">Errors</a>
+</div>
+<div class="item">
+<a href="./Main graphs_pages.average.vu.html">Response time against load</a>
+</div>
+</div>
+<div style="float: right;">
+<img style="margin-top: 10px; margin-bottom: 0px; margin-right: 4px; height: 40px;" src="./images/logo_neoload_footer_300dpi.png"></div>
+</div>
+<div id="content" class="match_report_settings_template">
+<div class="divHeader">Execution context</div>
+<div style="width: 100%; height: 20px;" id="report.settings.summary">
+<div style="float:left" class="h1" id="statistics_summary_title">Summary</div>
+</div>
+<div class="wrapper" align="center">
+<div align="center">
+<div align="center">
+<table class="simpleResultSummary_template">
+<tr>
+<td class="titleCell line2">Name</td><td class="line2">Registration Scenario</td><td class="titleCell line2">Project</td><td class="line2" width="35%">full_workflow</td>
+</tr>
+<tr>
+<td class="titleCell line2" nowrap>Description</td><td class="line2" valign="top"></td><td class="titleCell line2">Scenario</td><td class="line2">Registration Scenario</td>
+</tr>
+<tr>
+<td class="titleCell line2">Status</td><td class="line2"><img src="images/status_PASS.png" alt="images/status_PASS.png" style="vertical-align: middle;">  Passed</td><td class="titleCell line2" rowspan="2">Load Policy</td><td class="line2" rowspan="2" valign="top" width="55%">
+<ul class="valuesList" style="padding-left:0px">
+<li class="listItem">The population&nbsp;<strong>Registers</strong>&nbsp;
+            is ramp up&nbsp;
+            from&nbsp;<strong>1</strong>&nbsp;users&nbsp;
+            adding&nbsp;<strong>1</strong>&nbsp;users&nbsp;
+            every&nbsp;<strong>10.0</strong>&nbsp;seconds,&nbsp;to a maximum of &nbsp;<strong>15</strong>&nbsp;users.
+        </li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class="titleCell line2">Start date</td><td class="line2">Apr 24, 2026, 9:57:29 AM</td>
+</tr>
+<tr>
+<td class="titleCell line2">End date</td><td class="line2">Apr 24, 2026, 10:02:45 AM</td><td class="titleCell line2" rowspan="2">Stop Policy</td><td class="line2" rowspan="2" valign="top" width="55%">
+<ul class="valuesList" style="padding-left:0px">
+<li class="listItem">Population&nbsp;<strong>Registers</strong>: indeterminate.
+        </li>
+</ul>
+</td>
+</tr>
+<tr>
+<td class="titleCell line2">Duration</td><td class="line2">00:05:16</td>
+</tr>
+<tr>
+<td class="titleCell line2">Termination reason</td><td class="line2">Execution policy</td><td class="titleCell line2">Filters</td><td class="line2">
+<div>None</div>
+</td>
+</tr>
+<tr>
+<td class="titleCell line2">LG Hosts</td><td class="line2">localhost:7100</td><td class="titleCell line2" nowrap>Debug</td><td class="line2">Disabled</td>
+</tr>
+</table>
+</div>
+<br>
+<table style="border: 0" class="settings_global_template">
+<tr>
+<td nowrap class="field1 settings_global_template_first_td">NeoLoad version</td><td>2026.1.0;build=20260331-15</td>
+</tr>
+<tr>
+<td nowrap class="field1 settings_global_template_first_td">Graphs granularity</td><td>5s. (Standard)</td>
+</tr>
+</table>
+</div>
+<br>
+</div>
+<div style="width: 100%; height: 20px;" id="report.settings.global.applicationproxy">
+<div style="float:left" class="h1" id="statistics_summary_title">Application proxy</div>
+</div>
+<div class="wrapper" align="center">
+<div align="center">
+<table class="settings_global_proxy_table">
+<tr>
+<th width="25%">Name</th><th>Description</th>
+</tr>
+<tr>
+<td class="line3">local</td><td class="line3">Automatically detect settings<br></td>
+</tr>
+</table>
+</div>
+<br>
+</div>
+<div style="width: 100%; height: 20px;" id="report.settings.perzone.applicationproxies">
+<div style="float:left" class="h1" id="statistics_summary_title">Zone application proxies</div>
+</div>
+<div class="wrapper" align="center">
+<div align="center">
+<table class="settings_perzone_proxy_table">
+<tr>
+<td>No proxy</td>
+</tr>
+</table>
+</div>
+<br>
+</div>
+<div style="width: 100%; height: 20px;" id="report.settings.constantvariables">
+<div style="float:left" class="h1" id="statistics_summary_title">Constant variables</div>
+</div>
+<div class="wrapper" align="center">
+<div align="center">
+<table class="settings_constant_variables_table">
+<tr>
+<td>No constant variable</td>
+</tr>
+</table>
+</div>
+<br>
+</div>
+<div style="width: 100%; height: 20px;" id="report.settings.userpaths">
+<div style="float:left" class="h1" id="statistics_summary_title">User Paths settings</div>
+</div>
+<div class="wrapper" align="center">
+<div align="center">
+<table class="settings_constant_variables_table"><tr><td>
+<p class="smallTitle">Register</p>
+<p>
+<table style="border:none">
+<tr>
+<td style="width:30%">Error policy: </td><td>Do nothing</td>
+</tr>
+<tr>
+<td>Assertion policy: </td><td>Do nothing</td>
+</tr>
+<tr>
+<td>Thinktime policy: </td><td>defined in pages</td>
+</tr>
+<tr>
+<td>Pacing: </td><td>Between 6 and 12</td>
+</tr>
+</table>
+</p>
+</td><td>
+<p class="smallTitle">Register-Login</p>
+<p>
+<table style="border:none">
+<tr>
+<td style="width:30%">Error policy: </td><td>Do nothing</td>
+</tr>
+<tr>
+<td>Assertion policy: </td><td>Do nothing</td>
+</tr>
+<tr>
+<td>Thinktime policy: </td><td>defined in pages</td>
+</tr>
+<tr>
+<td>Pacing: </td><td>Between 15 and 23</td>
+</tr>
+</table>
+</p>
+</td></tr></table>
+</div>
+</div>
+</div>
+</body>
+</html>

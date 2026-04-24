@@ -1,0 +1,16 @@
+# Project description file
+
+project.name=full_workflow
+project.version=8.10
+project.original.version=8.10
+product.name=NeoLoad
+product.original.name=NeoLoad
+ssh.trustUnknownHosts.MONITORS=false
+monitor.tls.insecure=false
+product.version=2026.1.0
+product.original.version=2026.1.0
+project.is-open-test-settings-after-upload=false
+project.id=b3a1fff8-3700-4d9c-8213-704159a07122
+project.config.path=config.zip
+project.config.storage=ZIP
+team.server.enabled=false
